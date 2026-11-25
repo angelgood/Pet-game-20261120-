@@ -3,513 +3,139 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WELCOME TO PET'S HOME - 15年養成挑戰</title>
-    <!-- 引入復古像素英數字體 -->
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <title>START｜養寵人生大富翁</title>
     <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+        }
+
         body {
-            background-color: #d6c8c8; /* 影片同款莫蘭迪暖灰粉背景 */
-            font-family: 'Press Start 2P', 'Microsoft JhengHei', monospace;
+            margin: 0;
+            min-height: 100vh;
+            background: radial-gradient(circle at top, #1f1147 0%, #090418 75%);
+            font-family: 'Microsoft JhengHei', 'PingFang TC', sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 15px;
-            box-sizing: border-box;
-            color: #1a1a1a;
-        }
-
-        h1.game-title {
-            font-size: 1.25rem;
-            letter-spacing: 2px;
-            margin-bottom: 18px;
+            color: #fff;
             text-align: center;
-            line-height: 1.5;
-        }
-
-        /* 頂部圖示狀態列（模仿影片的飯糰與運動圖示列） */
-        .status-panel {
-            margin-bottom: 16px;
-            font-size: 0.85rem;
-            line-height: 2.2;
-            text-align: left;
-        }
-
-        .icon-row {
-            display: inline-block;
-            letter-spacing: 4px;
-            font-size: 1.1rem;
-            vertical-align: middle;
-        }
-
-        /* 客廳遊戲主畫面框 */
-        .room-screen {
-            position: relative;
-            width: 100%;
-            max-width: 480px;
-            height: 270px;
-            background: linear-gradient(to bottom, #fdf6ec 0%, #fdf6ec 68%, #d9b38c 68%, #c69c6d 100%);
-            border: 4px solid #333;
-            border-radius: 18px;
+            padding: 20px;
             overflow: hidden;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
         }
 
-        /* 客廳背景裝飾（窗戶、沙發、盆栽、地毯） */
-        .window {
-            position: absolute;
-            top: 22px;
-            left: 25px;
-            width: 110px;
-            height: 95px;
-            background: #cbe8f6;
-            border: 4px solid #fff;
-            box-shadow: inset 0 0 0 2px #a3cbe0;
+        .arcade-frame {
+            width: 100%;
+            max-width: 520px;
+            padding: 36px 24px;
+            border: 4px solid #00f5d4;
+            border-radius: 24px;
+            background: rgba(15, 10, 40, 0.85);
+            box-shadow: 0 0 25px rgba(0, 245, 212, 0.45), inset 0 0 20px rgba(155, 93, 229, 0.35);
         }
 
-            .window::after {
-                content: '';
-                position: absolute;
-                left: 50%;
-                top: 0;
-                bottom: 0;
-                width: 3px;
-                background: #fff;
-            }
-
-        .sofa {
-            position: absolute;
-            bottom: 65px;
-            left: 25px;
-            width: 135px;
-            height: 55px;
-            background: #c85a32;
-            border-radius: 10px 10px 4px 4px;
-            border: 3px solid #7a3218;
+        .tag-line {
+            display: inline-block;
+            font-size: 0.82rem;
+            letter-spacing: 2px;
+            color: #fee440;
+            border: 1.5px solid #fee440;
+            padding: 4px 14px;
+            border-radius: 999px;
+            margin-bottom: 18px;
         }
 
-            .sofa::before {
-                content: '';
-                position: absolute;
-                bottom: 0;
-                left: -8px;
-                right: -8px;
-                height: 26px;
-                background: #e06d44;
-                border-radius: 6px;
-                border: 3px solid #7a3218;
-            }
-
-        .plant {
-            position: absolute;
-            bottom: 65px;
-            right: 35px;
-            font-size: 46px;
+        .hero-icon {
+            font-size: 84px;
+            margin: 8px 0 14px 0;
+            filter: drop-shadow(0 0 14px rgba(254, 228, 64, 0.7));
+            animation: floatPet 2.2s ease-in-out infinite;
         }
 
-        .rug {
-            position: absolute;
-            bottom: 42px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 280px;
-            height: 24px;
-            background: #e6dfd5;
-            border: 2px dashed #b5a99a;
-            border-radius: 50%;
-        }
-
-        /* 右上角年齡顯示 */
-        .age-badge {
-            position: absolute;
-            top: 14px;
-            right: 18px;
-            font-size: 0.85rem;
-            font-weight: bold;
-            background: rgba(255,255,255,0.8);
-            padding: 5px 10px;
-            border-radius: 8px;
-        }
-
-        /* 會左右走動的像素寵物角色 */
-        .pet-sprite {
-            position: absolute;
-            bottom: 48px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 56px;
-            transition: left 0.8s ease-in-out, transform 0.3s;
-            user-select: none;
-            filter: drop-shadow(0 4px 0 rgba(0,0,0,0.2));
-        }
-
-        @keyframes hop {
+        @keyframes floatPet {
             0%, 100% {
-                margin-bottom: 0px;
+                transform: translateY(0);
             }
 
             50% {
-                margin-bottom: 8px;
+                transform: translateY(-10px);
             }
         }
 
-        .pet-hopping {
-            animation: hop 0.6s infinite;
+        .main-title {
+            font-size: 2.1rem;
+            font-weight: 900;
+            margin: 0 0 8px 0;
+            background: linear-gradient(90deg, #00f5d4, #fee440, #f15bb5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 2px;
         }
 
-        /* 畫面底部黑底白字復古對話欄（完全還原影片設計） */
-        .dialog-bar {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: #1e1e1e;
-            color: #ffffff;
-            font-size: 0.75rem;
-            padding: 10px 14px;
-            text-align: left;
-            line-height: 1.4;
-            border-top: 3px solid #000;
-        }
-
-        /* 問卷事件卡片區 */
-        .event-card {
-            width: 100%;
-            max-width: 480px;
-            background: #fffdf9;
-            border: 3px solid #333;
-            border-radius: 14px;
-            padding: 16px;
-            margin-top: 16px;
-            box-sizing: border-box;
-            text-align: left;
-        }
-
-        .event-header {
-            font-size: 0.8rem;
-            color: #c85a32;
-            font-weight: bold;
-            margin-bottom: 6px;
-        }
-
-        .event-question {
+        .sub-title {
             font-size: 0.95rem;
-            font-weight: bold;
-            line-height: 1.5;
-            margin-bottom: 12px;
-            font-family: 'Microsoft JhengHei', sans-serif;
+            color: #cbd5e1;
+            margin-bottom: 34px;
+            line-height: 1.6;
         }
 
-        /* 影片同款膠囊形狀按鈕（FEED / GROW UP / FITNESS 風格） */
-        .pill-btn-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        button.pill-btn {
-            background: #e5dede;
-            color: #1a1a1a;
-            border: 2.5px solid #222;
-            border-radius: 999px;
-            padding: 10px 18px;
-            font-size: 0.9rem;
-            font-weight: bold;
+        .start-btn {
+            display: inline-block;
+            width: 80%;
+            max-width: 280px;
+            padding: 18px 0;
+            font-size: 1.55rem;
+            font-weight: 900;
+            letter-spacing: 4px;
+            color: #090418;
+            background: #fee440;
+            border: 4px solid #fff;
+            border-radius: 16px;
             cursor: pointer;
-            font-family: 'Microsoft JhengHei', sans-serif;
-            transition: all 0.15s;
-            text-align: center;
+            box-shadow: 0 8px 0 #b5179e, 0 0 25px rgba(254, 228, 64, 0.7);
+            transition: transform 0.12s;
+            animation: pulseBtn 1.5s infinite;
         }
 
-            button.pill-btn:hover {
-                background: #222;
-                color: #fff;
-                transform: scale(1.02);
+        @keyframes pulseBtn {
+            0%, 100% {
+                transform: scale(1);
             }
 
-        /* 底部日常互動小按鈕（FEED / PLAY） */
-        .mini-actions {
-            display: flex;
-            gap: 12px;
-            margin-top: 12px;
-        }
-
-        .mini-btn {
-            background: #d6c8c8;
-            border: 2px solid #222;
-            border-radius: 999px;
-            padding: 6px 14px;
-            font-size: 0.7rem;
-            font-family: 'Press Start 2P', monospace;
-            cursor: pointer;
-        }
-
-            .mini-btn:hover {
-                background: #fff;
+            50% {
+                transform: scale(1.04);
             }
+        }
 
-        .hidden {
-            display: none;
+        .start-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 4px 0 #b5179e;
+        }
+
+        .footer-hint {
+            margin-top: 26px;
+            font-size: 0.78rem;
+            color: #94a3b8;
+            letter-spacing: 1px;
         }
     </style>
 </head>
 <body>
 
-    <h1 class="game-title">WELCOME TO PET'S HOME</h1>
+    <div class="arcade-frame">
+        <div class="tag-line">PET LIFE MONOPOLY</div>
+        <div class="hero-icon">🐶</div>
+        <h1 class="main-title">養寵人生大富翁</h1>
+        <div class="sub-title">
+            40 格真實養育預算 × 機會命運 × 照顧決策模擬<br>
+            準備好迎接毛孩的一生了嗎？
+        </div>
 
-    <!-- 圖示數值列 -->
-    <div class="status-panel">
-        <div>Bond Lv: <span class="icon-row" id="bond-icons">🍙🍙🍙</span></div>
-        <div>Care Lv: <span class="icon-row" id="care-icons">💖💖💖</span></div>
+        <button class="start-btn" onclick="location.href='profile.html'">START</button>
+
+        <div class="footer-hint">PRESS START TO BEGIN</div>
     </div>
 
-    <!-- 客廳主畫面 -->
-    <div class="room-screen">
-        <div class="window"></div>
-        <div class="sofa"></div>
-        <div class="plant">🪴</div>
-        <div class="rug"></div>
-
-        <div class="age-badge">Age: <span id="pet-age">1</span></div>
-        <div class="pet-sprite pet-hopping" id="pet-sprite">🥚</div>
-
-        <div class="dialog-bar" id="dialog-text">Welcome! Let's start our 15-year journey!</div>
-    </div>
-
-    <!-- 快捷日常互動按鈕（純趣味互動，像影片一樣可以餵飯糰或散步） -->
-    <div class="mini-actions">
-        <button class="mini-btn" onclick="quickInteract('feed')">🍙 FEED</button>
-        <button class="mini-btn" onclick="quickInteract('walk')">🎾 PLAY</button>
-    </div>
-
-    <!-- 問卷情境關卡區 -->
-    <div class="event-card" id="quiz-card">
-        <div class="event-header" id="event-stage">STAGE 1 / 12</div>
-        <div class="event-question" id="event-desc">載入事件中...</div>
-        <div class="pill-btn-group" id="options-box"></div>
-    </div>
-
-    <!-- 結算畫面 -->
-    <div class="event-card hidden" id="result-card" style="text-align:center;">
-        <h3 id="result-title" style="margin-top:0; font-family:'Microsoft JhengHei';">🎉 15年養成紀錄完成</h3>
-        <p id="result-desc" style="font-size:0.9rem; line-height:1.6; font-family:'Microsoft JhengHei';"></p>
-        <p style="font-size:0.75rem; color:#666; font-family:'Microsoft JhengHei';">✅ 作答資料已同步傳送至研究表單，感謝參與！</p>
-    </div>
-
-    <iframe name="hidden_iframe" style="display:none;"></iframe>
-
-    <script>
-                let bondScore = 3; // 1~5 顆飯糰
-                let careScore = 3; // 1~5 顆愛心
-                let currentStep = 0;
-                let petEmoji = "🐱";
-
-                // 對應你的 Google 表單真實欄位
-                let userAnswers = {
-                    "entry.1306008095": "沒有",
-                    "pageHistory": "0,15"
-                };
-
-                const gameEvents = [
-                    {
-                        entryId: "entry.1482908956",
-                        desc: "【領養日】你在客廳準備迎接新夥伴，這次陪伴你的是哪一種毛孩？",
-                        options: [
-                            { text: "🐱 領養一隻小貓咪", value: "貓", icon: "🐱", bond: +1, care: 0, say: "Meow! I am your new cat!" },
-                            { text: "🐶 領養一隻小狗狗", value: "狗", icon: "🐶", bond: +1, care: 0, say: "Woof! Nice to meet you!" }
-                        ]
-                    },
-                    {
-                        entryId: "entry.1886519423",
-                        desc: "【相遇契機】你們是透過什麼方式成為家人的呢？",
-                        options: [
-                            { text: "救援或領養", value: "救援或領養", bond: +1, care: 0, say: "Thank you for giving me a home!" },
-                            { text: "購買", value: "購買", bond: 0, care: 0, say: "I love my new room!" },
-                            { text: "親友贈與", value: "親友贈與", bond: 0, care: 0, say: "Happy to be with you!" }
-                        ]
-                    },
-                    {
-                        entryId: "entry.955439052",
-                        desc: "【經驗確認】在迎接牠之前，你過去有獨立飼養犬貓的經驗嗎？",
-                        options: [
-                            { text: "是（有獨立飼養經驗）", value: "是", bond: 0, care: +1, say: "You look like a pro owner!" },
-                            { text: "否（這是第一次飼養）", value: "否", bond: +1, care: 0, say: "Let's learn and grow together!" }
-                        ]
-                    },
-                    {
-                        entryId: "entry.1946226970",
-                        desc: "【居住型態】目前這間溫馨的小屋，你的居住狀況是？",
-                        options: [
-                            { text: "獨居", value: "獨居", bond: +1, care: 0, say: "Just you and me in this cozy house!" },
-                            { text: "與家人同住", value: "與家人同住", bond: 0, care: +1, say: "So many family members to play with!" },
-                            { text: "與伴侶或室友同住", value: "與伴侶或室友同住", bond: 0, care: +1, say: "Everyone here is so nice!" }
-                        ]
-                    },
-                    {
-                        entryId: "entry.969683976",
-                        desc: "【居住規範】住處（房東或管委會）是否已確認允許飼養寵物？",
-                        options: [
-                            { text: "已確認可以飼養", value: "已確認", bond: +1, care: +1, say: "I feel so safe living here!" },
-                            { text: "尚未確認", value: "未確認", bond: -1, care: -1, say: "Shh... hope nobody finds out..." }
-                        ]
-                    },
-                    {
-                        entryId: "entry.1930104811",
-                        desc: "【日常伙食】為了維持毛孩健康，你每月能編列的日常照顧預算是？",
-                        options: [
-                            { text: "3千以下", value: "3千以下", bond: 0, care: 0, say: "Simple rice balls are yummy too!" },
-                            { text: "3千–6千", value: "3千–6千", bond: +1, care: +1, say: "Yummy snacks and healthy food!" },
-                            { text: "6千以上", value: "6千以上", bond: +1, care: +1, say: "Feast every day! YUMMY!" }
-                        ]
-                    },
-                    {
-                        entryId: "entry.1528859979",
-                        desc: "【健康防線】面對未來可能的突發急診費用，你的緊急預備金狀況是？",
-                        options: [
-                            { text: "已準備", value: "已準備", bond: 0, care: +1, say: "I am fully protected!" },
-                            { text: "部分準備", value: "部分準備", bond: 0, care: 0, say: "Saving up for rainy days!" },
-                            { text: "未準備", value: "未準備", bond: -1, care: -1, say: "Hope I never get sick..." }
-                        ]
-                    },
-                    {
-                        entryId: "entry.972941952",
-                        desc: "【陪伴時光】每天下班後，你能抽出多少時間陪牠玩耍與清理環境？",
-                        options: [
-                            { text: "1小時以下", value: "1小時以下", bond: -1, care: 0, say: "Waiting for you by the door..." },
-                            { text: "1–2小時", value: "1–2小時", bond: +1, care: +1, say: "Playtime is the best time!" },
-                            { text: "2小時以上", value: "2小時以上", bond: +1, care: +1, say: "I love spending all day with you!" }
-                        ]
-                    },
-                    {
-                        entryId: "entry.2095995778",
-                        desc: "【成長與老化】毛孩慢慢長大了！你對牠未來老病與行為照護的了解程度？",
-                        options: [
-                            { text: "非常了解", value: "非常了解", bond: +1, care: +1, say: "You always know what I need!" },
-                            { text: "普通", value: "普通", bond: 0, care: 0, say: "Learning new things every year!" },
-                            { text: "不太了解", value: "不太了解", bond: 0, care: -1, say: "Growing old is a bit scary..." }
-                        ]
-                    },
-                    {
-                        entryId: "entry.429737722",
-                        desc: "【後援系統】當你臨時需要出遠門或忙碌時，親友或保母能支援的程度？",
-                        options: [
-                            { text: "充足", value: "充足", bond: 0, care: +1, say: "Yay! Visiting my pet sitter!" },
-                            { text: "普通", value: "普通", bond: 0, care: 0, say: "I'll be a good boy while you're away!" },
-                            { text: "缺乏", value: "缺乏", bond: 0, care: -1, say: "Don't leave me alone too long..." }
-                        ]
-                    },
-                    {
-                        entryId: "entry.1340420291",
-                        desc: "【中年考驗】隨著年齡增長，哪一項問題對你來說會是最大的壓力來源？",
-                        options: [
-                            { text: "寵物行為問題", value: "寵物行為", bond: -1, care: 0, say: "Sorry I scratched the sofa..." },
-                            { text: "醫療費用", value: "醫療費用", bond: 0, care: -1, say: "Vet visits are expensive..." },
-                            { text: "環境與家庭變動", value: "環境與家庭變動", bond: -1, care: -1, say: "Please don't leave me behind..." }
-                        ]
-                    },
-                    {
-                        entryId: "entry.1072205979",
-                        desc: "【終極抉擇】假設突然必須搬家且不易找到寵物友善租屋，你會怎麼做？",
-                        options: [
-                            { text: "尋找可負擔且可養寵物住所並調整預算", value: "尋找可負擔且可養寵物住所並調整預算", bond: +2, care: +1, say: "Forever together! Best owner ever!" },
-                            { text: "請親友暫時代養", value: "請親友暫時代養", bond: 0, care: 0, say: "Promise you will come back for me!" },
-                            { text: "尋找新飼主送養", value: "尋找新飼主送養", bond: -2, care: -1, say: "Goodbye my dear friend..." }
-                        ]
-                    }
-                ];
-
-                // 讓寵物在客廳裡隨機左右散步（像影片一樣）
-                setInterval(() => {
-                    const pet = document.getElementById("pet-sprite");
-                    const randomLeft = Math.floor(Math.random() * 55) + 22; // 22% ~ 77% 範圍內移動
-                    pet.style.left = randomLeft + "%";
-                }, 2200);
-
-                // 快捷餵食與玩耍互動
-                function quickInteract(type) {
-                    const dialog = document.getElementById("dialog-text");
-                    if (type === 'feed') {
-                        dialog.innerText = "I am having a rice ball! YUMMY! 🍙";
-                    } else {
-                        dialog.innerText = "I go for a walk now, so happy! 🎾";
-                    }
-                }
-
-                function updateIcons() {
-                    bondScore = Math.max(1, Math.min(5, bondScore));
-                    careScore = Math.max(1, Math.min(5, careScore));
-                    document.getElementById("bond-icons").innerText = "🍙".repeat(bondScore);
-                    document.getElementById("care-icons").innerText = "💖".repeat(careScore);
-                }
-
-                function loadStep() {
-                    if (currentStep >= gameEvents.length) {
-                        endGame();
-                        return;
-                    }
-                    const ev = gameEvents[currentStep];
-                    document.getElementById("event-stage").innerText = `STAGE ${currentStep + 1} / ${gameEvents.length}`;
-                    document.getElementById("event-desc").innerText = ev.desc;
-
-                    // 隨著關卡推進，寵物年齡從 1 歲長大到 15 歲
-                    const currentAge = Math.min(15, Math.floor(currentStep * 1.3) + 1);
-                    document.getElementById("pet-age").innerText = currentAge;
-                    if (currentStep > 0) {
-                        document.getElementById("pet-sprite").innerText = petEmoji;
-                    }
-
-                    const box = document.getElementById("options-box");
-                    box.innerHTML = "";
-                    ev.options.forEach(opt => {
-                        const btn = document.createElement("button");
-                        btn.className = "pill-btn";
-                        btn.innerText = opt.text;
-                        btn.onclick = () => {
-                            userAnswers[ev.entryId] = opt.value;
-                            if (opt.icon) petEmoji = opt.icon;
-                            bondScore += opt.bond;
-                            careScore += opt.care;
-                            updateIcons();
-                            document.getElementById("dialog-text").innerText = opt.say;
-                            currentStep++;
-                            loadStep();
-                        };
-                        box.appendChild(btn);
-                    });
-                }
-
-                function endGame() {
-                    document.getElementById("quiz-card").classList.add("hidden");
-                    document.getElementById("result-card").classList.remove("hidden");
-                    document.getElementById("pet-age").innerText = "15";
-                    document.getElementById("dialog-text").innerText = "Thank you for taking care of me for 15 years!";
-
-                    const resultDesc = (bondScore >= 4 && careScore >= 4)
-                        ? "太棒了！你在陪伴羈絆與照護資源上都維持在滿分狀態，成功陪伴毛孩幸福健康地度過了 15 年！"
-                        : "15 年的養育旅程充滿考驗，適時補充緊急預備金與親友後援網絡，能讓你們的相伴更加安穩喔！";
-                    document.getElementById("result-desc").innerText = resultDesc;
-
-                    // 背景送出至 Google 表單
-                    const form = document.createElement("form");
-                    form.action = "https://docs.google.com/forms/d/e/1FAIpQLSfi1w-TQt-_ftcAgLINOV7TAexsrRarRtWlpbgoNrblj7RTUw/formResponse";
-                    form.method = "POST";
-                    form.target = "hidden_iframe";
-                    for (const [k, v] of Object.entries(userAnswers)) {
-                        const input = document.createElement("input");
-                        input.type = "hidden";
-                        input.name = k;
-                        input.value = v;
-                        form.appendChild(input);
-                    }
-                    document.body.appendChild(form);
-                    form.submit();
-                    document.body.removeChild(form);
-                }
-
-                updateIcons();
-                loadStep();
-    </script>
 </body>
 </html>
