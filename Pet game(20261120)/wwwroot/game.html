@@ -1,0 +1,979 @@
+﻿<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>大富翁遊戲主頁｜養寵人生大富翁</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            margin: 0;
+            padding: 10px;
+            background: #5c4033;
+            background-image: radial-gradient(#7f5539 1px, transparent 1px);
+            background-size: 18px 18px;
+            font-family: 'Microsoft JhengHei', 'PingFang TC', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            color: #2b2118;
+        }
+
+        .board-wrapper {
+            width: 100%;
+            max-width: 750px;
+            background: #faedcd;
+            border: 5px solid #3d2616;
+            border-radius: 22px;
+            padding: 12px;
+            box-shadow: 0 12px 0 #3d2616, 0 18px 36px rgba(0, 0, 0, 0.5);
+        }
+
+        /* 頂部桌遊資源儀表板（含 -1 / +1 微調按鈕） */
+        .hud-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+            background: #3d2616;
+            color: #fefae0;
+            padding: 8px;
+            border-radius: 12px;
+            border: 3px solid #2b2118;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .hud-title {
+            font-size: 0.7rem;
+            color: #dda15e;
+        }
+
+        .hud-value {
+            font-size: 0.92rem;
+            font-weight: 900;
+            color: #ffd166;
+            margin-top: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .mini-adj-btn {
+            background: #bc6c25;
+            color: #fff;
+            border: 1.5px solid #fefae0;
+            border-radius: 5px;
+            font-size: 0.68rem;
+            font-weight: 900;
+            padding: 1px 5px;
+            cursor: pointer;
+        }
+
+            .mini-adj-btn:hover {
+                background: #e63946;
+            }
+
+        /* 11x11 環形 40 格大富翁棋盤 */
+        .board-40 {
+            display: grid;
+            grid-template-columns: repeat(11, 1fr);
+            grid-template-rows: repeat(11, 46px);
+            gap: 3px;
+            background: #606c38;
+            padding: 6px;
+            border: 4px solid #2b2118;
+            border-radius: 16px;
+            position: relative;
+        }
+
+        .cell {
+            background: #fefae0;
+            border: 2px solid #2b2118;
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+            padding: 1px;
+            overflow: hidden;
+        }
+
+        .cell-num {
+            position: absolute;
+            top: 1px;
+            left: 3px;
+            font-size: 0.5rem;
+            color: #555;
+            font-weight: bold;
+        }
+
+        .cell-icon {
+            font-size: 15px;
+            line-height: 1;
+        }
+
+        .cell-label {
+            font-size: 0.52rem;
+            font-weight: bold;
+            line-height: 1.05;
+            margin-top: 1px;
+            white-space: nowrap;
+        }
+
+        .cell-start {
+            background: #ffd166;
+        }
+
+        .cell-question {
+            background: #ffccd5;
+            border-color: #c9184a;
+        }
+
+        .cell-chance {
+            background: #d8f3dc;
+            border-color: #2d6a4f;
+        }
+
+        .cell-fate {
+            background: #caf0f8;
+            border-color: #0077b6;
+        }
+
+        .cell-feed {
+            background: #fffcf2;
+        }
+
+        .cell-active {
+            outline: 3px solid #ff9f1c;
+            background: #fff3b0 !important;
+            z-index: 6;
+        }
+
+        .dog-token {
+            position: absolute;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.94);
+            border: 2.5px solid #d62828;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            z-index: 10;
+            animation: bounceToken 0.45s infinite alternate;
+        }
+
+        @keyframes bounceToken {
+            from {
+                transform: scale(0.92);
+            }
+
+            to {
+                transform: scale(1.06);
+            }
+        }
+
+        /* 中央桌遊操作區 */
+        .board-hub {
+            grid-column: 2 / 11;
+            grid-row: 2 / 11;
+            background: #fefae0;
+            border: 3px solid #2b2118;
+            border-radius: 14px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            text-align: center;
+        }
+
+        .hub-header {
+            font-size: 0.88rem;
+            font-weight: 900;
+            color: #3d2616;
+        }
+
+        .streak-box {
+            width: 100%;
+            background: #faedcd;
+            border: 2px solid #2b2118;
+            border-radius: 10px;
+            padding: 5px 8px;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        .streak-dots {
+            display: inline-flex;
+            gap: 5px;
+            margin-left: 4px;
+            vertical-align: middle;
+        }
+
+        .dot {
+            width: 13px;
+            height: 13px;
+            border-radius: 50%;
+            border: 2px solid #2b2118;
+            background: #fff;
+            display: inline-block;
+        }
+
+            .dot.filled {
+                background: #e76f51;
+            }
+
+        .free-badge {
+            display: inline-block;
+            background: #2a9d8f;
+            color: #fff;
+            padding: 2px 7px;
+            border-radius: 999px;
+            font-size: 0.68rem;
+            margin-left: 4px;
+        }
+
+        .log-screen {
+            width: 100%;
+            flex: 1;
+            margin: 7px 0;
+            background: #fff;
+            border: 2.5px solid #2b2118;
+            border-radius: 10px;
+            padding: 8px 10px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: #2b2118;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            line-height: 1.42;
+            overflow-y: auto;
+        }
+
+        .dice-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .dice-visual {
+            font-size: 42px;
+            line-height: 1;
+        }
+
+        .rolling {
+            animation: spin 0.3s linear infinite;
+        }
+
+        @keyframes spin {
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .btn-roll {
+            background: #d62828;
+            color: #fff;
+            border: 3px solid #2b2118;
+            border-radius: 12px;
+            padding: 10px 22px;
+            font-size: 0.96rem;
+            font-weight: 900;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #2b2118;
+        }
+
+            .btn-roll:disabled {
+                background: #adb5bd;
+                cursor: not-allowed;
+            }
+
+        /* 彈出卡片與結算報表 */
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(20, 12, 6, 0.82);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 14px;
+            z-index: 99;
+        }
+
+        .modal-panel {
+            background: #fefae0;
+            border: 4px solid #2b2118;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 520px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 20px;
+            box-shadow: 0 8px 0 #2b2118;
+        }
+
+        .badge-pill {
+            display: inline-block;
+            background: #f4a261;
+            border: 2px solid #2b2118;
+            border-radius: 999px;
+            padding: 3px 12px;
+            font-size: 0.76rem;
+            font-weight: 900;
+            margin-bottom: 8px;
+        }
+
+        .modal-heading {
+            font-size: 1.04rem;
+            font-weight: 900;
+            margin-bottom: 12px;
+            line-height: 1.45;
+        }
+
+        .option-btn {
+            display: block;
+            width: 100%;
+            background: #fff;
+            border: 2.5px solid #2b2118;
+            border-radius: 12px;
+            padding: 10px 14px;
+            margin-bottom: 8px;
+            font-size: 0.88rem;
+            font-weight: bold;
+            text-align: left;
+            cursor: pointer;
+            color: #2b2118;
+        }
+
+            .option-btn:hover {
+                background: #3d2616;
+                color: #fefae0;
+            }
+
+        .primary-btn {
+            width: 100%;
+            background: #2a9d8f;
+            color: #fff;
+            border: 3px solid #2b2118;
+            border-radius: 12px;
+            padding: 12px;
+            font-size: 0.98rem;
+            font-weight: 900;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #2b2118;
+            margin-top: 6px;
+        }
+
+        .stat-summary-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .summary-card {
+            background: #fff;
+            border: 2px solid #2b2118;
+            border-radius: 10px;
+            padding: 8px;
+            text-align: center;
+        }
+
+            .summary-card small {
+                display: block;
+                font-size: 0.72rem;
+                color: #555;
+            }
+
+            .summary-card strong {
+                font-size: 0.96rem;
+                color: #3d2616;
+            }
+
+        .result-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.76rem;
+            background: #fff;
+        }
+
+            .result-table th, .result-table td {
+                border: 1.5px solid #2b2118;
+                padding: 6px 8px;
+                text-align: left;
+            }
+
+            .result-table th {
+                background: #3d2616;
+                color: #fefae0;
+            }
+
+        .btn-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        @media (max-width: 540px) {
+            .board-40 {
+                grid-template-rows: repeat(11, 35px);
+                gap: 2px;
+                padding: 4px;
+            }
+
+            .cell-label {
+                display: none;
+            }
+
+            .cell-icon {
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="board-wrapper">
+        <!-- 頂部狀態列（每項皆預留 -1 / +1 微調按鈕） -->
+        <div class="hud-grid">
+            <div>
+                <div class="hud-title">目前步數 / 40</div>
+                <div class="hud-value">
+                    <button class="mini-adj-btn" onclick="adjustStat('totalSteps', -1)">-1</button>
+                    <span id="hud-step">0</span>
+                    <button class="mini-adj-btn" onclick="adjustStat('totalSteps', 1)">+1</button>
+                </div>
+            </div>
+            <div>
+                <div class="hud-title">月寵物預算餘額</div>
+                <div class="hud-value">
+                    <button class="mini-adj-btn" onclick="adjustStat('petBudgetRemain', -1)">-1</button>
+                    🪙<span id="hud-budget">650</span>
+                    <button class="mini-adj-btn" onclick="adjustStat('petBudgetRemain', 1)">+1</button>
+                </div>
+            </div>
+            <div>
+                <div class="hud-title">免費飼料券</div>
+                <div class="hud-value">
+                    <button class="mini-adj-btn" onclick="adjustStat('freeFeedStock', -1)">-1</button>
+                    🦴<span id="hud-free-feed">0</span>
+                    <button class="mini-adj-btn" onclick="adjustStat('freeFeedStock', 1)">+1</button>
+                </div>
+            </div>
+            <div>
+                <div class="hud-title">飼主備用存款</div>
+                <div class="hud-value">
+                    <button class="mini-adj-btn" onclick="adjustStat('personalReserve', -1)">-1</button>
+                    💰<span id="hud-reserve">1000</span>
+                    <button class="mini-adj-btn" onclick="adjustStat('personalReserve', 1)">+1</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 40 格環形大富翁棋盤 -->
+        <div class="board-40" id="board-40">
+            <div class="board-hub">
+                <div class="hub-header" id="hub-owner-info">🐶 養寵人生大富翁（40格）</div>
+
+                <div class="streak-box">
+                    30代幣飼料集點：
+                    <span class="streak-dots">
+                        <span class="dot" id="dot-1"></span>
+                        <span class="dot" id="dot-2"></span>
+                        <span class="dot" id="dot-3"></span>
+                    </span>
+                    <span class="free-badge">滿3次送1格免費飼料</span>
+                </div>
+
+                <div class="log-screen" id="game-log">
+                    載入主人資料中...
+                </div>
+
+                <div class="dice-area">
+                    <div class="dice-visual" id="dice-face">🎲</div>
+                    <button class="btn-roll" id="roll-btn" onclick="handleRoll()">🎲 擲骰前進</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 遊戲中問卷題目 / 機會 / 命運卡片彈窗 -->
+    <div class="modal-backdrop hidden" id="card-modal">
+        <div class="modal-panel">
+            <div class="badge-pill" id="card-badge">卡片事件</div>
+            <div class="modal-heading" id="card-text">載入中...</div>
+            <div id="card-options"></div>
+        </div>
+    </div>
+
+    <!-- 最終統計結算面板 -->
+    <div class="modal-backdrop hidden" id="result-modal">
+        <div class="modal-panel">
+            <div class="badge-pill">🎉 40 格養寵挑戰完成｜統計結算報告</div>
+            <div class="modal-heading" id="result-title">飼主風險與預算統計結果</div>
+
+            <div class="stat-summary-grid" id="summary-cards"></div>
+
+            <div style="font-size:0.84rem; font-weight:bold; margin-bottom:4px;">📋 本局完整問卷作答統計明細：</div>
+            <div style="max-height: 230px; overflow-y: auto; border: 2px solid #2b2118; border-radius: 8px;">
+                <table class="result-table" id="result-table">
+                    <thead>
+                        <tr>
+                            <th style="width:24%;">題號/構面</th>
+                            <th style="width:44%;">問題內容</th>
+                            <th style="width:32%;">您的選擇</th>
+                        </tr>
+                    </thead>
+                    <tbody id="result-tbody"></tbody>
+                </table>
+            </div>
+
+            <div class="btn-row">
+                <button class="primary-btn" style="background:#3d2616;" onclick="copySummary()">📋 複製統計文字</button>
+                <button class="primary-btn" onclick="downloadCSV()">📥 下載 CSV 統計表</button>
+            </div>
+            <button class="option-btn" style="text-align:center; margin-top:10px;" onclick="location.href='index.html'">🏠 回到 START 頁面（重新一局）</button>
+        </div>
+    </div>
+
+    <!-- 引入獨立題庫檔案 -->
+    <script src="questions.js"></script>
+    <script>
+        const ring40Coords = [];
+        for (let c = 1; c <= 11; c++) ring40Coords.push([1, c]);
+        for (let r = 2; r <= 11; r++) ring40Coords.push([r, 11]);
+        for (let c = 10; c >= 1; c--) ring40Coords.push([11, c]);
+        for (let r = 10; r >= 2; r--) ring40Coords.push([r, 1]);
+
+        const chanceSet = new Set([3, 10, 18, 25, 33]);
+        const fateSet   = new Set([6, 13, 21, 28, 37]);
+        const questSet  = new Set([2, 4, 7, 9, 12, 14, 16, 19, 22, 24, 27, 29, 31, 34, 36, 38]);
+
+        let game = {
+            pos: 0,
+            totalSteps: 0,
+            initialPetBudget: 650,
+            petBudgetRemain: 650,
+            personalReserve: 1000,
+            totalFeedSpent: 0,
+            overBudgetSpent: 0,
+            thirtyCount: 0,
+            freeFeedEarned: 0,
+            freeFeedStock: 0,
+            isMoving: false,
+            profile: null,
+            activeQueue: [],
+            qIndex: 0,
+            chanceIdx: 0,
+            fateIdx: 0,
+            records: [],
+            riskScore: 0
+        };
+
+        const diceIcons = ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
+
+        function initProfileFromSession() {
+            const raw = sessionStorage.getItem("petMonopolyProfile");
+            if (!raw) {
+                alert("尚未填寫主人勾選表單，將為您導向第二頁表單！");
+                location.href = "profile.html";
+                return false;
+            }
+
+            const p = JSON.parse(raw);
+            game.profile = p;
+            game.initialPetBudget = p.petBudget;
+            game.petBudgetRemain = p.petBudget;
+
+            if (p.exp.includes("目前有飼養")) {
+                game.activeQueue = experiencedQuestions.filter(item => !item.onlyPastOwner);
+            } else if (p.exp.includes("曾有飼養")) {
+                game.activeQueue = [...experiencedQuestions];
+            } else {
+                game.activeQueue = [...inexperiencedQuestions];
+            }
+
+            document.getElementById("hub-owner-info").innerText =
+                `🐶 ${p.gender}｜${p.age}｜月寵物預算 ${p.petBudget} 代幣`;
+
+            logText(`歡迎 <b>${p.gender}（${p.age}）</b>！<br>每月寵物預算 <b>${p.petBudget} 代幣</b>已載入（飼料費優先從此扣除）。<br>本局共 <b>${game.activeQueue.length}</b> 道情境題，請擲骰出發！`);
+            updateHud();
+            return true;
+        }
+
+        function adjustStat(key, delta) {
+            if (key === "totalSteps") {
+                game.totalSteps = Math.max(0, Math.min(40, game.totalSteps + delta));
+                game.pos = game.totalSteps % 40;
+                renderToken();
+            } else if (key === "petBudgetRemain") {
+                game.petBudgetRemain = Math.max(0, game.petBudgetRemain + delta);
+            } else if (key === "freeFeedStock") {
+                game.freeFeedStock = Math.max(0, game.freeFeedStock + delta);
+            } else if (key === "personalReserve") {
+                game.personalReserve = Math.max(0, game.personalReserve + delta);
+            }
+            updateHud();
+        }
+
+        function build40Board() {
+            const board = document.getElementById("board-40");
+            for (let i = 0; i < 40; i++) {
+                const cell = document.createElement("div");
+                cell.className = "cell";
+                cell.id = `cell-${i}`;
+                cell.style.gridRow = ring40Coords[i][0];
+                cell.style.gridColumn = ring40Coords[i][1];
+
+                let icon = "🦴";
+                let label = "飼料消耗";
+                if (i === 0) {
+                    cell.classList.add("cell-start");
+                    icon = "🏁";
+                    label = "起點/終點";
+                } else if (chanceSet.has(i)) {
+                    cell.classList.add("cell-chance");
+                    icon = "🍀";
+                    label = "機會";
+                } else if (fateSet.has(i)) {
+                    cell.classList.add("cell-fate");
+                    icon = "🎴";
+                    label = "命運";
+                } else if (questSet.has(i)) {
+                    cell.classList.add("cell-question");
+                    icon = "❓";
+                    label = "問卷事件";
+                } else {
+                    cell.classList.add("cell-feed");
+                }
+
+                cell.innerHTML = `
+                    <span class="cell-num">${i + 1}</span>
+                    <span class="cell-icon">${icon}</span>
+                    <span class="cell-label">${label}</span>
+                `;
+                board.appendChild(cell);
+            }
+            renderToken();
+        }
+
+        function renderToken() {
+            const old = document.getElementById("dog-token");
+            if (old) old.remove();
+            document.querySelectorAll(".cell").forEach(c => c.classList.remove("cell-active"));
+
+            const currentCell = document.getElementById(`cell-${game.pos}`);
+            currentCell.classList.add("cell-active");
+
+            const token = document.createElement("div");
+            token.className = "dog-token";
+            token.id = "dog-token";
+            token.innerText = "🐶";
+            currentCell.appendChild(token);
+        }
+
+        function updateHud() {
+            document.getElementById("hud-step").innerText = game.totalSteps;
+            document.getElementById("hud-budget").innerText = game.petBudgetRemain;
+            document.getElementById("hud-free-feed").innerText = game.freeFeedStock;
+            document.getElementById("hud-reserve").innerText = game.personalReserve;
+
+            const modCount = game.thirtyCount % 3;
+            for (let d = 1; d <= 3; d++) {
+                const dot = document.getElementById(`dot-${d}`);
+                if (d <= modCount) dot.classList.add("filled");
+                else dot.classList.remove("filled");
+            }
+        }
+
+        function logText(html) {
+            document.getElementById("game-log").innerHTML = html;
+        }
+
+        function deductFromPetBudget(amount) {
+            game.totalFeedSpent += amount;
+            if (game.petBudgetRemain >= amount) {
+                game.petBudgetRemain -= amount;
+                return `從月寵物預算扣除 ${amount} 代幣（剩餘 ${game.petBudgetRemain}）`;
+            } else {
+                const deficit = amount - game.petBudgetRemain;
+                game.petBudgetRemain = 0;
+                game.overBudgetSpent += deficit;
+                game.personalReserve = Math.max(0, game.personalReserve - deficit);
+                return `⚠️ 月寵物預算已用盡！由備用存款墊付 ${deficit} 代幣`;
+            }
+        }
+
+        function handleRoll() {
+            if (game.isMoving || game.totalSteps >= 40) return;
+            game.isMoving = true;
+            document.getElementById("roll-btn").disabled = true;
+
+            const diceEl = document.getElementById("dice-face");
+            diceEl.classList.add("rolling");
+
+            const steps = Math.floor(Math.random() * 4) + 1;
+
+            setTimeout(() => {
+                diceEl.classList.remove("rolling");
+                diceEl.innerText = diceIcons[steps - 1];
+                stepForward(steps, []);
+            }, 380);
+        }
+
+        function stepForward(remaining, stepLogs) {
+            if (remaining <= 0 || game.totalSteps >= 40) {
+                game.isMoving = false;
+                document.getElementById("roll-btn").disabled = false;
+                finishMoveTurn(stepLogs);
+                return;
+            }
+
+            game.pos = (game.pos + 1) % 40;
+            game.totalSteps++;
+            renderToken();
+
+            if (game.freeFeedStock > 0) {
+                game.freeFeedStock--;
+                stepLogs.push(`第 ${game.totalSteps} 格：🦴 使用【免費飼料券】，免扣月寵物預算！`);
+            } else {
+                const costOptions = [10, 20, 30];
+                const cost = costOptions[Math.floor(Math.random() * costOptions.length)];
+                const deductMsg = deductFromPetBudget(cost);
+
+                if (cost === 30) {
+                    game.thirtyCount++;
+                    if (game.thirtyCount % 3 === 0) {
+                        game.freeFeedEarned++;
+                        game.freeFeedStock++;
+                        stepLogs.push(`第 ${game.totalSteps} 格：飼料花費 30 代幣（${deductMsg}）🎉 集滿3次送1格免費飼料！`);
+                    } else {
+                        stepLogs.push(`第 ${game.totalSteps} 格：飼料花費 30 代幣（${deductMsg}｜集點 ${game.thirtyCount % 3}/3）`);
+                    }
+                } else {
+                    stepLogs.push(`第 ${game.totalSteps} 格：飼料花費 ${cost} 代幣（${deductMsg}）`);
+                }
+            }
+
+            updateHud();
+
+            setTimeout(() => {
+                stepForward(remaining - 1, stepLogs);
+            }, 220);
+        }
+
+        function finishMoveTurn(stepLogs) {
+            logText(stepLogs.join("<br>"));
+
+            if (game.totalSteps >= 40) {
+                setTimeout(checkRemainingAndFinish, 500);
+                return;
+            }
+
+            if (chanceSet.has(game.pos)) {
+                const card = chanceCards[game.chanceIdx % chanceCards.length];
+                game.chanceIdx++;
+                openChanceOrFateModal("🍀 機會事件卡", card);
+                return;
+            }
+
+            if (fateSet.has(game.pos)) {
+                const card = fateCards[game.fateIdx % fateCards.length];
+                game.fateIdx++;
+                openChanceOrFateModal("🎴 命運事件卡", card);
+                return;
+            }
+
+            const isQuestionTile = questSet.has(game.pos);
+            const expectedAnswered = Math.floor((game.totalSteps / 40) * game.activeQueue.length);
+
+            if ((isQuestionTile || game.qIndex < expectedAnswered) && game.qIndex < game.activeQueue.length) {
+                openQuestionModal(game.activeQueue[game.qIndex]);
+            }
+        }
+
+        function openChanceOrFateModal(badgeText, card) {
+            const modal = document.getElementById("card-modal");
+            modal.classList.remove("hidden");
+            document.getElementById("card-badge").innerText = badgeText;
+            document.getElementById("card-text").innerHTML = `${card.title}<br><span style="font-size:0.88rem; font-weight:normal; color:#333;">${card.desc}</span>`;
+
+            const optsDiv = document.getElementById("card-options");
+            optsDiv.innerHTML = "";
+
+            const btn = document.createElement("button");
+            btn.className = "primary-btn";
+            btn.innerText = "確認收下卡片效果 ➡";
+            btn.onclick = () => {
+                if (card.budgetDelta > 0) {
+                    game.petBudgetRemain += card.budgetDelta;
+                } else if (card.budgetDelta < 0) {
+                    deductFromPetBudget(Math.abs(card.budgetDelta));
+                }
+                if (card.reserveDelta !== 0) {
+                    game.personalReserve = Math.max(0, game.personalReserve + card.reserveDelta);
+                }
+                if (card.freeFeedDelta > 0) {
+                    game.freeFeedEarned += card.freeFeedDelta;
+                    game.freeFeedStock += card.freeFeedDelta;
+                }
+                updateHud();
+                modal.classList.add("hidden");
+            };
+            optsDiv.appendChild(btn);
+        }
+
+        function openQuestionModal(qObj, onAfterAnswer = null) {
+            const modal = document.getElementById("card-modal");
+            modal.classList.remove("hidden");
+            document.getElementById("card-badge").innerText = `📋 問卷題目 (${game.qIndex + 1}/${game.activeQueue.length})｜${qObj.dim} [${qObj.code}]`;
+            document.getElementById("card-text").innerText = qObj.q;
+
+            const optsDiv = document.getElementById("card-options");
+            optsDiv.innerHTML = "";
+
+            qObj.opts.forEach((optText, idx) => {
+                const btn = document.createElement("button");
+                btn.className = "option-btn";
+                btn.innerText = optText;
+                btn.onclick = () => {
+                    game.records.push({
+                        code: qObj.code,
+                        dim: qObj.dim,
+                        question: qObj.q,
+                        answer: optText
+                    });
+                    const normalizedRisk = qObj.opts.length > 1 ? (idx / (qObj.opts.length - 1)) * 2 : 0;
+                    game.riskScore += normalizedRisk;
+                    game.qIndex++;
+                    updateHud();
+                    modal.classList.add("hidden");
+
+                    if (onAfterAnswer) {
+                        onAfterAnswer();
+                    }
+                };
+                optsDiv.appendChild(btn);
+            });
+        }
+
+        function checkRemainingAndFinish() {
+            if (game.qIndex < game.activeQueue.length) {
+                openQuestionModal(game.activeQueue[game.qIndex], checkRemainingAndFinish);
+                return;
+            }
+            showFinalStatistics();
+        }
+
+        function showFinalStatistics() {
+            const modal = document.getElementById("result-modal");
+            modal.classList.remove("hidden");
+
+            const maxPossibleRisk = game.activeQueue.length * 2;
+            const riskPct = maxPossibleRisk > 0 ? Math.round((game.riskScore / maxPossibleRisk) * 100) : 0;
+            let riskLevel = "低風險（穩健型）";
+            if (riskPct >= 65) riskLevel = "高風險（需強化後援）";
+            else if (riskPct >= 35) riskLevel = "中度風險（留意預算超支）";
+
+            document.getElementById("result-title").innerText =
+                `【${game.profile.gender}｜${game.profile.age}｜${game.profile.region}｜月收${game.profile.income}】完成 40 格統計`;
+
+            document.getElementById("summary-cards").innerHTML = `
+                <div class="summary-card">
+                    <small>照顧中斷風險指數</small>
+                    <strong>${riskPct}% (${riskLevel.split("（")[0]})</strong>
+                </div>
+                <div class="summary-card">
+                    <small>原定月寵物預算 / 剩餘</small>
+                    <strong>${game.initialPetBudget} / ${game.petBudgetRemain} 🪙</strong>
+                </div>
+                <div class="summary-card">
+                    <small>總寵物花費 / 超支墊付</small>
+                    <strong>${game.totalFeedSpent} / ${game.overBudgetSpent} 🪙</strong>
+                </div>
+                <div class="summary-card">
+                    <small>30代幣次數 / 免費飼料格數</small>
+                    <strong>${game.thirtyCount} 次 / ${game.freeFeedEarned} 格 🦴</strong>
+                </div>
+            `;
+
+            const tbody = document.getElementById("result-tbody");
+            tbody.innerHTML = `
+                <tr>
+                    <td><b>基本資料</b><br><small>表單勾選</small></td>
+                    <td>性別 / 年齡 / 地區 / 月收 / 月寵物預算 / 居住 / 關注面向 / 經驗</td>
+                    <td>${game.profile.gender}、${game.profile.age}、${game.profile.region}、${game.profile.income}、月預算${game.initialPetBudget}代幣、${game.profile.housing}、關注：${game.profile.concerns}、${game.profile.exp}</td>
+                </tr>
+            `;
+
+            game.records.forEach(r => {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td><b>${r.code}</b><br><small>${r.dim}</small></td>
+                    <td>${r.question}</td>
+                    <td><b>${r.answer}</b></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function copySummary() {
+            const lines = [
+                `【養寵人生大富翁 40格統計結果】`,
+                `基本資料：${game.profile.gender} | ${game.profile.age} | ${game.profile.region} | 月收:${game.profile.income} | 月寵物預算:${game.initialPetBudget} | 居住:${game.profile.housing} | 關注面向:${game.profile.concerns} | 經驗:${game.profile.exp}`,
+                `預算與飼料統計：原定月預算 ${game.initialPetBudget} | 剩餘預算 ${game.petBudgetRemain} | 總花費 ${game.totalFeedSpent} | 超支墊付 ${game.overBudgetSpent} | 30元次數 ${game.thirtyCount} | 免費飼料 ${game.freeFeedEarned} 格`,
+                `--- 問卷作答明細 ---`
+            ];
+            game.records.forEach(r => {
+                lines.push(`[${r.code} ${r.dim}] ${r.question} => ${r.answer}`);
+            });
+
+            navigator.clipboard.writeText(lines.join("\n")).then(() => {
+                alert("✅ 已將完整統計結果複製到剪貼簿！");
+            });
+        }
+
+        function downloadCSV() {
+            const bom = "\uFEFF";
+            let csv = "題號,構面,問題內容,作答結果\n";
+            csv += `基本資料,飼主背景,性別/年齡/地區/月收/月寵物預算/居住/關注面向/經驗,"${game.profile.gender} / ${game.profile.age} / ${game.profile.region} / ${game.profile.income} / 月預算${game.initialPetBudget} / ${game.profile.housing} / ${game.profile.concerns} / ${game.profile.exp}"\n`;
+            csv += `預算統計,財務與飼料,原定月預算/剩餘預算/總花費/超支墊付/30元次數/免費飼料格數,"${game.initialPetBudget} / ${game.petBudgetRemain} / ${game.totalFeedSpent} / ${game.overBudgetSpent} / ${game.thirtyCount}次 / ${game.freeFeedEarned}格"\n`;
+            game.records.forEach(r => {
+                csv += `"${r.code}","${r.dim}","${r.question.replace(/"/g, '""')}","${r.answer.replace(/"/g, '""')}"\n`;
+            });
+
+            const blob = new Blob([bom + csv], { type: "text/csv;charset=utf-8;" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `養寵大富翁統計_${game.profile.age}_${Date.now()}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        if (initProfileFromSession()) {
+            build40Board();
+        }
+    </script>
+</body>
+</html>

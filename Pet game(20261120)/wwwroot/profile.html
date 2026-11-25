@@ -1,0 +1,334 @@
+﻿<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>飼主調查勾選表單｜養寵人生大富翁</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 20px 12px 40px 12px;
+            background: #eef5f2;
+            font-family: 'Microsoft JhengHei', 'PingFang TC', sans-serif;
+            color: #1e293b;
+            display: flex;
+            justify-content: center;
+        }
+
+        .survey-paper {
+            width: 100%;
+            max-width: 680px;
+            background: #ffffff;
+            border-top: 8px solid #10b981;
+            border-radius: 14px;
+            padding: 26px 24px;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+        }
+
+        .step-badge {
+            display: inline-block;
+            background: #d1fae5;
+            color: #065f46;
+            font-size: 0.8rem;
+            font-weight: bold;
+            padding: 4px 12px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+        }
+
+        .survey-title {
+            font-size: 1.45rem;
+            font-weight: 900;
+            color: #0f172a;
+            margin: 0 0 6px 0;
+        }
+
+        .survey-desc {
+            font-size: 0.88rem;
+            color: #64748b;
+            margin-bottom: 22px;
+            padding-bottom: 14px;
+            border-bottom: 1.5px solid #e2e8f0;
+        }
+
+        .q-block {
+            margin-bottom: 22px;
+            padding: 16px;
+            background: #f8fafc;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 10px;
+        }
+
+        .q-label {
+            display: block;
+            font-size: 0.96rem;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 12px;
+        }
+
+        .check-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 10px;
+        }
+
+        /* 勾選框卡片樣式 */
+        .check-card {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            background: #fff;
+            border: 2px solid #cbd5e1;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.15s;
+        }
+
+            .check-card:hover {
+                border-color: #10b981;
+                background: #f0fdf4;
+            }
+
+            .check-card input[type="radio"],
+            .check-card input[type="checkbox"] {
+                width: 18px;
+                height: 18px;
+                accent-color: #10b981;
+                cursor: pointer;
+                margin: 0;
+            }
+
+            .check-card:has(input:checked) {
+                border-color: #10b981;
+                background: #ecfdf5;
+                color: #065f46;
+            }
+
+        /* +1 / -1 微調器 */
+        .stepper-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            max-width: 280px;
+        }
+
+        .btn-step {
+            width: 44px;
+            height: 40px;
+            background: #0f172a;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+            .btn-step:hover {
+                background: #10b981;
+            }
+
+        .num-box {
+            flex: 1;
+            height: 40px;
+            text-align: center;
+            font-size: 1.05rem;
+            font-weight: 900;
+            border: 2px solid #cbd5e1;
+            border-radius: 8px;
+            background: #fff;
+        }
+
+        .action-bar {
+            display: flex;
+            gap: 12px;
+            margin-top: 26px;
+        }
+
+        .btn-back {
+            flex: 1;
+            padding: 14px;
+            background: #e2e8f0;
+            color: #334155;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .btn-next {
+            flex: 2;
+            padding: 14px;
+            background: #10b981;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.02rem;
+            font-weight: 900;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
+        }
+
+            .btn-next:hover {
+                background: #059669;
+            }
+    </style>
+</head>
+<body>
+
+    <div class="survey-paper">
+        <div class="step-badge">STEP 2 / 3｜基本資料勾選調查</div>
+        <h1 class="survey-title">飼主背景與寵物預算勾選表單</h1>
+        <div class="survey-desc">請勾選最符合您現況的選項，系統將依您的勾選結果設定大富翁初始預算與專屬題庫。</div>
+
+        <!-- 1. 性別 -->
+        <div class="q-block">
+            <span class="q-label">1. 您的性別（單選）</span>
+            <div class="check-grid">
+                <label class="check-card"><input type="radio" name="gender" value="女性" checked> 女性</label>
+                <label class="check-card"><input type="radio" name="gender" value="男性"> 男性</label>
+                <label class="check-card"><input type="radio" name="gender" value="其他 / 不願透露"> 其他 / 不願透露</label>
+            </div>
+        </div>
+
+        <!-- 2. 實際年齡（+1 / -1） -->
+        <div class="q-block">
+            <span class="q-label">2. 您的實際年齡（歲，可使用 -1 / +1 微調）</span>
+            <div class="stepper-bar">
+                <button type="button" class="btn-step" onclick="adjustNum('age-num', -1, 15, 99)">-1</button>
+                <input type="number" id="age-num" class="num-box" value="22" min="15" max="99">
+                <button type="button" class="btn-step" onclick="adjustNum('age-num', 1, 15, 99)">+1</button>
+            </div>
+        </div>
+
+        <!-- 3. 居住地區 -->
+        <div class="q-block">
+            <span class="q-label">3. 您目前居住於臺灣哪裡？ [O02]</span>
+            <div class="check-grid">
+                <label class="check-card"><input type="radio" name="region" value="北部" checked> 北部</label>
+                <label class="check-card"><input type="radio" name="region" value="中部"> 中部</label>
+                <label class="check-card"><input type="radio" name="region" value="南部"> 南部</label>
+                <label class="check-card"><input type="radio" name="region" value="東部"> 東部</label>
+                <label class="check-card"><input type="radio" name="region" value="離島"> 離島</label>
+            </div>
+        </div>
+
+        <!-- 4. 月收入 -->
+        <div class="q-block">
+            <span class="q-label">4. 個人 / 家庭月收入級距 [A01]</span>
+            <div class="check-grid">
+                <label class="check-card"><input type="radio" name="income" value="3萬元以下" checked> 3萬元以下</label>
+                <label class="check-card"><input type="radio" name="income" value="3萬~5萬元"> 3萬~5萬元</label>
+                <label class="check-card"><input type="radio" name="income" value="5萬~8萬元"> 5萬~8萬元</label>
+                <label class="check-card"><input type="radio" name="income" value="8萬~12萬元"> 8萬~12萬元</label>
+                <label class="check-card"><input type="radio" name="income" value="12萬元以上"> 12萬元以上</label>
+            </div>
+        </div>
+
+        <!-- 5. 每月估計給寵物的花費預算 -->
+        <div class="q-block">
+            <span class="q-label">5. 每月估計給寵物的花費預算（大富翁飼料費將從此預算中扣除）</span>
+            <div class="check-grid" style="margin-bottom: 12px;">
+                <label class="check-card"><input type="radio" name="budgetPreset" value="400" onclick="setBudget(400)"> 400 代幣（約2,000元以下）</label>
+                <label class="check-card"><input type="radio" name="budgetPreset" value="650" checked onclick="setBudget(650)"> 650 代幣（約2,001~4,000元）</label>
+                <label class="check-card"><input type="radio" name="budgetPreset" value="900" onclick="setBudget(900)"> 900 代幣（約4,001~6,000元）</label>
+                <label class="check-card"><input type="radio" name="budgetPreset" value="1200" onclick="setBudget(1200)"> 1,200 代幣（約6,001元以上）</label>
+            </div>
+            <div style="font-size:0.82rem; color:#475569; margin-bottom:6px;">自訂預算微調（-1 / +1）：</div>
+            <div class="stepper-bar">
+                <button type="button" class="btn-step" onclick="adjustNum('budget-num', -1, 0, 9999)">-1</button>
+                <input type="number" id="budget-num" class="num-box" value="650" min="0" max="9999">
+                <button type="button" class="btn-step" onclick="adjustNum('budget-num', 1, 0, 9999)">+1</button>
+            </div>
+        </div>
+
+        <!-- 6. 居住環境 -->
+        <div class="q-block">
+            <span class="q-label">6. 目前居住環境 [B01]</span>
+            <div class="check-grid">
+                <label class="check-card"><input type="radio" name="housing" value="自有住宅（透天/大樓）" checked> 自有住宅（透天/大樓）</label>
+                <label class="check-card"><input type="radio" name="housing" value="與家人同住"> 與家人同住</label>
+                <label class="check-card"><input type="radio" name="housing" value="租屋（整層住家）"> 租屋（整層住家）</label>
+                <label class="check-card"><input type="radio" name="housing" value="租屋（獨立套房/雅房）"> 租屋（獨立套房/雅房）</label>
+            </div>
+        </div>
+
+        <!-- 7. 關注的照護面向（複選 Checkbox） -->
+        <div class="q-block">
+            <span class="q-label">7. 您最在意或最擔心的養寵面向（可複選勾選）</span>
+            <div class="check-grid">
+                <label class="check-card"><input type="checkbox" name="concerns" value="日常飼料與醫療開銷" checked> 日常飼料與醫療開銷</label>
+                <label class="check-card"><input type="checkbox" name="concerns" value="租屋空間與鄰居限制"> 租屋空間與鄰居限制</label>
+                <label class="check-card"><input type="checkbox" name="concerns" value="陪伴時間與行為訓練"> 陪伴時間與行為訓練</label>
+                <label class="check-card"><input type="checkbox" name="concerns" value="緊急狀況無人接手照顧"> 緊急狀況無人接手照顧</label>
+            </div>
+        </div>
+
+        <!-- 8. 飼養情況分流 -->
+        <div class="q-block">
+            <span class="q-label">8. 下列哪一項最符合您目前的飼養情況？ [O03]（決定遊戲問卷路線）</span>
+            <div class="check-grid">
+                <label class="check-card"><input type="radio" name="exp" value="目前有飼養犬/貓" checked> 目前有飼養犬/貓</label>
+                <label class="check-card"><input type="radio" name="exp" value="曾有飼養經驗、目前沒有"> 曾有飼養經驗、目前沒有</label>
+                <label class="check-card"><input type="radio" name="exp" value="從未飼養、未來有意願"> 從未飼養、未來有意願</label>
+                <label class="check-card"><input type="radio" name="exp" value="從未飼養、且暫時沒有意願"> 從未飼養、且暫時沒有意願</label>
+            </div>
+        </div>
+
+        <div class="action-bar">
+            <button type="button" class="btn-back" onclick="location.href='index.html'">⬅ 返回 START</button>
+            <button type="button" class="btn-next" onclick="submitSurveyForm()">確認勾選，進入 40 格大富翁 ➡</button>
+        </div>
+    </div>
+
+    <script>
+        function adjustNum(id, delta, minVal, maxVal) {
+            const el = document.getElementById(id);
+            let val = parseInt(el.value || 0, 10) + delta;
+            val = Math.max(minVal, Math.min(maxVal, val));
+            el.value = val;
+        }
+
+        function setBudget(val) {
+            document.getElementById("budget-num").value = val;
+        }
+
+        function getCheckedRadio(name) {
+            const checked = document.querySelector(`input[name="${name}"]:checked`);
+            return checked ? checked.value : "";
+        }
+
+        function submitSurveyForm() {
+            const concernEls = document.querySelectorAll('input[name="concerns"]:checked');
+            const concerns = Array.from(concernEls).map(el => el.value);
+
+            const ageNum = parseInt(document.getElementById("age-num").value || 22, 10);
+            const petBudget = parseInt(document.getElementById("budget-num").value || 650, 10);
+
+            const profileData = {
+                gender: getCheckedRadio("gender"),
+                ageNum: ageNum,
+                age: `${ageNum}歲`,
+                region: getCheckedRadio("region"),
+                income: getCheckedRadio("income"),
+                petBudget: petBudget,
+                housing: getCheckedRadio("housing"),
+                concerns: concerns.length > 0 ? concerns.join("、") : "無特別勾選",
+                exp: getCheckedRadio("exp")
+            };
+
+            sessionStorage.setItem("petMonopolyProfile", JSON.stringify(profileData));
+            location.href = "game.html";
+        }
+    </script>
+</body>
+</html>
